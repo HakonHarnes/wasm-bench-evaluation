@@ -2525,7 +2525,11 @@ function TraceVariablePath(abstraction) {
         } else if (newVarAlias.isSYM()) {
           targetVarName = newVarAlias.name
         } else if (newVarAlias.isREF()) {
-          newVarAlias = newVarAlias.Address.getSymbolicValue()
+          if (newVarAlias.Address.isSYM()) {
+            newVarAlias = newVarAlias.Address
+          } else if (newVarAlias.Address.isOP()) {
+            newVarAlias = newVarAlias.Address.getSymbolicValue()
+          }
           targetVarName = newVarAlias.name
         } else if (newVarAlias.isIMM()) {
           break
