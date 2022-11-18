@@ -207,6 +207,7 @@ class Operation extends StackValue {
 
     while (!innerOperations.isEmpty() && innerOperations.items.length < 2000) {
       const val = innerOperations.dequeue()
+      if (!val) continue
 
       if (val.isIMM()) {
         if (val.value === constantValue) {
@@ -231,7 +232,11 @@ class Operation extends StackValue {
     const left = this.lValue
     const right = this.rValue
 
-    if (this.lValue.isIMM() && (this.rValue == null || (this.rValue != null && this.rValue.isIMM()))) {
+    if (
+      this.lValue != null &&
+      this.lValue.isIMM() &&
+      (this.rValue == null || (this.rValue != null && this.rValue.isIMM()))
+    ) {
       let newType
       switch (this.operator) {
         case 'add':
@@ -327,7 +332,7 @@ class Operation extends StackValue {
         default:
           return this
       }
-    } else if (left.isOP() && right != null) {
+    } else if (left && left.isOP() && right != null) {
       if (this.operator == 'sub') {
         if (left.operator == 'add') {
           if (lodash.isEqual(left.lValue, right)) {
@@ -936,7 +941,7 @@ class VirtualState {
   }
 
   getLocalVariable(varName) {
-    if (!this.LocalVariables[varName]) {
+    if (!this.LocalVariables[varName] || !this.LocalVariables[varName].value) {
       const newSymbolicValue = new SymbolicValue(varName, lineNumber)
       const newVarReference = new VariableReference(newSymbolicValue, lineNumber)
       this.LocalVariables[varName] = newVarReference
@@ -2749,6 +2754,8 @@ function abstractionPostProcessingR(abstractionList) {
 
             // Make MEMCPY Abstraction
             const store8Abstraction = innerAbstraction.InnerAbstractions[store8AbstractionIndex]
+            if (!store8Abstraction) break
+
             const ifAbstraction = innerAbstraction.InnerAbstractions[ifAbstractionIndex]
             const newMemcpySize = new Operation(
               'sub',
