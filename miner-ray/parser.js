@@ -1670,7 +1670,7 @@ class Graph {
 
   *traverseDFSArrayOnly(startingNode = this.FirstVertex) {
     const traverseInnerAbstractions = function* (abstr) {
-      if (abstr.InnerAbstractions.length > 0) {
+      if (abstr.innerAbstraction != null && abstr.InnerAbstractions.length > 0) {
         for (const innerAbs of abstr.InnerAbstractions) {
           yield innerAbs
           yield* traverseInnerAbstractions(innerAbs)
@@ -2949,14 +2949,10 @@ function getFunctionType(functionName) {
 //////////////////// LINE PROCESSING FUNCTIONS ///////////////////
 
 function onLineReadForDetails(line) {
-  // console.log(lineNumber, line)
   let tokens = line
     .split(/\s+/)
     .map(cleanToken)
     .filter((token) => token != '')
-
-  // console.log(tokens)
-
   // Clean comments
   let markCommentIndex = -1
   for (let k = 0; k < tokens.length; k++) {
@@ -3130,7 +3126,6 @@ function onLineReadForDetails(line) {
     }
 
     switch (token) {
-      // ERROR
       case TOKENS.call:
         {
           const functionCallName = tokens[++currentTokenIndex]
@@ -3154,7 +3149,6 @@ function onLineReadForDetails(line) {
     }
 
     // Look for the start of loops
-    // ERROR
     if (token == TOKENS.LOOP_TOKEN) {
       contextBreakStack.push({ type: TOKENS.LOOP_TOKEN, line: lineNumber })
       ProgramDetails.Functions[currentFunction].LoopLines.push(lineNumber)
@@ -3172,7 +3166,6 @@ function onLineReadForDetails(line) {
 
         if (lastToken.type == TOKENS.LOOP_TOKEN) {
           ProgramDetails.Functions[currentFunction].NumberOfLoops += 1
-          // ERROR
         } else if (lastToken.type == TOKENS.IF_TOKEN) {
           ProgramDetails.Functions[currentFunction].NumberOfIfs += 1
           ProgramDetails.Functions[currentFunction].Ifs.push({
